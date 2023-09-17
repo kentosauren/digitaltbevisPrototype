@@ -1,17 +1,65 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Import for SystemChrome
+import 'package:flutter/services.dart';
 
 void main() {
-  // Ensure Flutter widgets binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Make the app full-screen
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
-
-  runApp(MyApp());
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((_) {
+    runApp(MyApp());
+  });
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+  double _opacity = 1.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.elasticOut,
+    );
+
+    _controller.addStatusListener((status) async {
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          _opacity = 0.0;
+        });
+        await Future.delayed(Duration(seconds: 2));
+        setState(() {
+          _opacity = 1.0;
+        });
+        _controller.reverse();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _animateImageAndText() {
+    setState(() {
+      _opacity = 0.0;
+    });
+    _controller.forward(from: 0);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,56 +68,76 @@ class MyApp extends StatelessWidget {
         backgroundColor: Color(0xFFeab937),
         body: LayoutBuilder(
           builder: (context, constraints) {
-            double topHeight =
-                constraints.maxHeight * 0.55; // more room for top
+            double topHeight = constraints.maxHeight * 0.55;
             double bottomHeight = constraints.maxHeight * 0.45;
             return Stack(
               children: [
+                Positioned(
+                  bottom: bottomHeight + 100,
+                  left: 0,
+                  right: 0,
+                  child: AnimatedOpacity(
+                    opacity: _opacity,
+                    duration: Duration(milliseconds: 200),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            "Kent Dreyer",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              letterSpacing: 2.0,
+                            ),
+                          ),
+                          Text(
+                            "27.03.86",
+                            style: TextStyle(
+                              fontSize: 16,
+                              letterSpacing: 2.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Container(
-                      width: double.infinity,
-                      height: topHeight,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(bottom: 20),
-                            width: 250,
-                            height: 250,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                image: AssetImage("assets/studentbevis.jpeg"),
-                                fit: BoxFit.cover,
+                    GestureDetector(
+                      onTap: _animateImageAndText,
+                      child: Container(
+                        width: double.infinity,
+                        height: topHeight,
+                        child: Stack(
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            AnimatedBuilder(
+                              animation: _animation,
+                              builder: (context, child) {
+                                return Positioned(
+                                  bottom: (topHeight - 250 - 30) -
+                                      (topHeight - 250 - 30 - 0) *
+                                          _animation.value,
+                                  child: child!,
+                                );
+                              },
+                              child: Container(
+                                width: 250,
+                                height: 250,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                        "assets/studentbevisPortrait.jpeg"),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(
-                                bottom: 80.0), // Add padding to the bottom
-                            child: Column(
-                              children: [
-                                Text(
-                                  "Kent Dreyer",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                    letterSpacing: 2.0,
-                                  ),
-                                ),
-                                Text(
-                                  "27.03.86",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    letterSpacing: 2.0,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     Container(
@@ -77,6 +145,37 @@ class MyApp extends StatelessWidget {
                       height: bottomHeight,
                     ),
                   ],
+                ),
+                Positioned(
+                  bottom: bottomHeight +
+                      100, // Adjust this value to position the text below the image
+                  left: 0,
+                  right: 0,
+                  child: AnimatedOpacity(
+                    opacity: _opacity,
+                    duration: Duration(milliseconds: 200),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Text(
+                            "Kent Dreyer",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              letterSpacing: 2.0,
+                            ),
+                          ),
+                          Text(
+                            "27.03.86",
+                            style: TextStyle(
+                              fontSize: 16,
+                              letterSpacing: 2.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
                 Positioned(
                   bottom: 0,
@@ -192,7 +291,10 @@ class MyApp extends StatelessWidget {
                   right: 10,
                   child: GestureDetector(
                     onTap: () {},
-                    child: Icon(Icons.more_vert),
+                    child: Icon(
+                      Icons.more_vert,
+                      size: 80.0,
+                    ),
                   ),
                 ),
               ],
