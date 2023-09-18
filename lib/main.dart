@@ -16,17 +16,14 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
-  //App variables:
+  // App variables:
   String name = "Kent Dreyer";
   String birthday = "27.03.86";
-  String university = "UiT Norges Arktiske universitet";
   String studentNumber = "451315";
 
   String validFrom = "01.07.23";
   String validTo = "31.01.24";
   String semester = "Høst 2023";
-
-  //-------------------
 
   late final AnimationController _controller;
   late final Animation<double> _animation;
@@ -34,14 +31,22 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
   bool _boxVisible = false; // To control the visibility of the box
   bool _panelVisible = false; // To control the visibility of the sliding panel
 
+  late final AnimationController _hatController;
+  late final Animation<double> _hatAnimation;
+  late final AnimationController _leftHatController;
+  late final Animation<double> _leftHatAnimation;
+
   @override
   void initState() {
     super.initState();
+
+    // Initialize image and text animation controller
     _controller = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
 
+    // Initialize image and text animation
     _animation = CurvedAnimation(
       parent: _controller,
       curve: Curves.elasticOut,
@@ -59,12 +64,66 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
         _controller.reverse();
       }
     });
+
+    // Initialize hat animation controller
+    _hatController = AnimationController(
+      duration: const Duration(seconds: 6),
+      vsync: this,
+    );
+
+    // Initialize hat animation
+    _hatAnimation = Tween<double>(begin: -100, end: 200).animate(
+      CurvedAnimation(
+        parent: _hatController,
+        curve: Curves.linear,
+      ),
+    )..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          // Keep rotating in the same direction and change opacity
+          _hatController.reverse();
+        } else if (status == AnimationStatus.dismissed) {
+          _hatController.forward();
+        }
+      });
+
+    // Start the hat animation with a delay
+    Future.delayed(Duration(seconds: 4), () {
+      _startHatAnimation();
+    });
+
+    // Initialize left hat animation controller
+    _leftHatController = AnimationController(
+      duration: const Duration(seconds: 4),
+      vsync: this,
+    );
+
+    // Initialize left hat animation
+    _leftHatAnimation = Tween<double>(begin: -100, end: 200).animate(
+      CurvedAnimation(
+        parent: _leftHatController,
+        curve: Curves.linear,
+      ),
+    )..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          // Keep rotating in the same direction and change opacity
+          _leftHatController.reverse();
+        } else if (status == AnimationStatus.dismissed) {
+          _leftHatController.forward();
+        }
+      });
+
+    // Start the left hat animation with a delay
+    Future.delayed(Duration(seconds: 2), () {
+      _startLeftHatAnimation();
+    });
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  void _startHatAnimation() {
+    _hatController.forward();
+  }
+
+  void _startLeftHatAnimation() {
+    _leftHatController.forward();
   }
 
   void _animateImageAndText() {
@@ -87,6 +146,14 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    _hatController.dispose();
+    _leftHatController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -99,7 +166,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
             return Stack(
               children: [
                 Positioned(
-                  bottom: bottomHeight + 100,
+                  bottom: bottomHeight + 80,
                   left: 0,
                   right: 0,
                   child: AnimatedOpacity(
@@ -109,7 +176,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                       child: Column(
                         children: [
                           Text(
-                            "Kent Dreyer",
+                            name,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
@@ -117,7 +184,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                             ),
                           ),
                           Text(
-                            "27.03.86",
+                            birthday,
                             style: TextStyle(
                               fontSize: 16,
                               letterSpacing: 2.0,
@@ -173,37 +240,6 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                   ],
                 ),
                 Positioned(
-                  bottom: bottomHeight +
-                      100, // Adjust this value to position the text below the image
-                  left: 0,
-                  right: 0,
-                  child: AnimatedOpacity(
-                    opacity: _opacity,
-                    duration: Duration(milliseconds: 100),
-                    child: Center(
-                      child: Column(
-                        children: [
-                          Text(
-                            "Kent Dreyer",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              letterSpacing: 2.0,
-                            ),
-                          ),
-                          Text(
-                            "27.03.86",
-                            style: TextStyle(
-                              fontSize: 16,
-                              letterSpacing: 2.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
                   bottom: 0,
                   left: 0,
                   right: 0,
@@ -216,92 +252,134 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                         topRight: Radius.circular(20),
                       ),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Column(
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.all(0.0),
-                                child: Text(
-                                  "UiT Norges Arktiske universitet",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18, // Bigger font size
+                    child: Stack(
+                      children: [
+                        AnimatedBuilder(
+                          animation: _hatAnimation,
+                          builder: (context, child) {
+                            return Positioned(
+                              bottom: _hatAnimation.value,
+                              right: 0,
+                              child: Opacity(
+                                opacity: 0.5, // Set opacity
+                                child: Transform.rotate(
+                                  angle: _hatAnimation.value *
+                                      0.02, // Adjust rotation speed
+                                  child: Image.asset(
+                                    'assets/hat.png',
+                                    width: 100,
+                                    height: 100,
                                   ),
                                 ),
                               ),
-                              Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text(
-                                  "Studentnummer: 451315",
-                                  style: TextStyle(
-                                    fontSize: 18, // Bigger font size
+                            );
+                          },
+                        ),
+                        AnimatedBuilder(
+                          animation: _leftHatAnimation,
+                          builder: (context, child) {
+                            return Positioned(
+                              bottom: _leftHatAnimation.value,
+                              left: 0,
+                              child: Opacity(
+                                opacity: 0.5, // Set opacity
+                                child: Transform.rotate(
+                                  angle: _leftHatAnimation.value *
+                                      0.02, // Adjust rotation speed
+                                  child: Image.asset(
+                                    'assets/hat.png',
+                                    width: 120, // Make it a bit bigger
+                                    height: 120, // Make it a bit bigger
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                          Column(
+                            );
+                          },
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Container(
-                                width: double.infinity, // 100% width
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 5), // 5px padding
-                                child: ElevatedButton(
-                                  onPressed:
-                                      _animateImageAndText, // Trigger the same animation
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xFF2b512f),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          4), // 2px rounded corner
+                              Column(
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.all(0.0),
+                                    child: Text(
+                                      "UiT Norges Arktiske universitet",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
                                     ),
-                                    padding:
-                                        EdgeInsets.all(3), // 3px padding inside
-                                    minimumSize: Size(double.infinity,
-                                        80), // Increase button height to 60
                                   ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "Gyldig semesterkvittering",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontWeight:
-                                              FontWeight.normal, // Remove bold
-                                          fontSize: 18, // Increase font size
-                                        ),
+                                  Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      "Studentnummer: " + studentNumber,
+                                      style: TextStyle(
+                                        fontSize: 18,
                                       ),
-                                      Text(
-                                        "Høst 2023",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontWeight:
-                                              FontWeight.bold, // Make it bold
-                                          fontSize: 18, // Increase font size
-                                        ),
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
-                              const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text(
-                                  "Gyldig fra 01.07.23 til og med 31.01.24",
-                                  style: TextStyle(
-                                    fontSize: 16, // Bigger font size
+                              Column(
+                                children: [
+                                  Container(
+                                    width: double.infinity,
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 5),
+                                    child: ElevatedButton(
+                                      onPressed: _animateImageAndText,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Color(0xFF2b512f),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                        ),
+                                        padding: EdgeInsets.all(3),
+                                        minimumSize: Size(double.infinity, 80),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "Gyldig semesterkvittering",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.normal,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                          Text(
+                                            semester,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                  Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Text(
+                                      "Gyldig fra $validFrom til og med $validTo",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -309,16 +387,16 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                   top: 10,
                   left: 10,
                   child: GestureDetector(
-                    onTap: _toggleBoxVisibility, // Toggle box visibility on tap
+                    onTap: _toggleBoxVisibility,
                     child: Image.asset(
                       'assets/barcode.jpg',
-                      width: 65, // Set the width of the image
-                      height: 65, // Set the height of the image
+                      width: 65,
+                      height: 65,
                     ),
                   ),
                 ),
                 Visibility(
-                  visible: _boxVisible, // Control visibility here
+                  visible: _boxVisible,
                   child: Positioned(
                     top: 0,
                     left: 0,
@@ -353,12 +431,10 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                             ),
                           ),
                           Expanded(
-                            // Ensure the button takes up the remaining space
                             child: Align(
                               alignment: Alignment.bottomCenter,
                               child: ElevatedButton(
-                                onPressed:
-                                    _toggleBoxVisibility, // Close the box
+                                onPressed: _toggleBoxVisibility,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Color(0xFFeab937),
                                   shape: RoundedRectangleBorder(
@@ -381,14 +457,12 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                   ),
                 ),
                 Visibility(
-                  visible: !_boxVisible &&
-                      !_panelVisible, // Hide the icon when the box or panel is showing
+                  visible: !_boxVisible && !_panelVisible,
                   child: Positioned(
                     top: 10,
                     right: 10,
                     child: GestureDetector(
-                      onTap:
-                          _togglePanelVisibility, // Toggle panel visibility on tap
+                      onTap: _togglePanelVisibility,
                       child: Icon(
                         Icons.more_vert,
                         size: 80.0,
@@ -397,8 +471,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                   ),
                 ),
                 Visibility(
-                  visible:
-                      _panelVisible, // Control visibility of the panel here
+                  visible: _panelVisible,
                   child: AnimatedContainer(
                     duration: Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
@@ -456,7 +529,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                           child: Text('Logg ut'),
                         ),
                         ElevatedButton(
-                          onPressed: _togglePanelVisibility, // Close the panel
+                          onPressed: _togglePanelVisibility,
                           style: ElevatedButton.styleFrom(
                             primary: Colors.white,
                             onPrimary: Colors.black,
