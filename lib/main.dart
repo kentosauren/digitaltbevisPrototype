@@ -166,7 +166,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
             return Stack(
               children: [
                 Positioned(
-                  bottom: bottomHeight + 80,
+                  bottom: bottomHeight + 120,
                   left: 0,
                   right: 0,
                   child: AnimatedOpacity(
@@ -222,8 +222,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                                 decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
                                   image: DecorationImage(
-                                    image: AssetImage(
-                                        "assets/studentbevisPortrait.jpeg"),
+                                    image: AssetImage("assets/portrait.jpg"),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -503,8 +502,8 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                             // Handle "Vilkår" button click
                           },
                           style: ElevatedButton.styleFrom(
-                            primary: Colors.white,
-                            onPrimary: Colors.black,
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black,
                           ),
                           child: Text('Vilkår'),
                         ),
@@ -513,8 +512,8 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                             // Handle "Personvern" button click
                           },
                           style: ElevatedButton.styleFrom(
-                            primary: Colors.white,
-                            onPrimary: Colors.black,
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black,
                           ),
                           child: Text('Personvern'),
                         ),
@@ -523,16 +522,16 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                             // Handle "Logg ut" button click
                           },
                           style: ElevatedButton.styleFrom(
-                            primary: Colors.white,
-                            onPrimary: Colors.black,
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black,
                           ),
                           child: Text('Logg ut'),
                         ),
                         ElevatedButton(
                           onPressed: _togglePanelVisibility,
                           style: ElevatedButton.styleFrom(
-                            primary: Colors.white,
-                            onPrimary: Colors.black,
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black,
                           ),
                           child: Text('Lukk'),
                         ),
