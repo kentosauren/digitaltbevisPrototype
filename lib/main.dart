@@ -19,6 +19,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _animation;
   double _opacity = 1.0;
+  bool _boxVisible = false; // To control the visibility of the box
 
   @override
   void initState() {
@@ -38,7 +39,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
         setState(() {
           _opacity = 0.0;
         });
-        await Future.delayed(Duration(seconds: 2));
+        await Future.delayed(Duration(milliseconds: 150));
         setState(() {
           _opacity = 1.0;
         });
@@ -58,6 +59,12 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
       _opacity = 0.0;
     });
     _controller.forward(from: 0);
+  }
+
+  void _toggleBoxVisibility() {
+    setState(() {
+      _boxVisible = !_boxVisible;
+    });
   }
 
   @override
@@ -117,8 +124,8 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                               animation: _animation,
                               builder: (context, child) {
                                 return Positioned(
-                                  bottom: (topHeight - 250 - 30) -
-                                      (topHeight - 250 - 30 - 0) *
+                                  bottom: (topHeight - 250 - 50) -
+                                      (topHeight - 250 - 30 - 20) *
                                           _animation.value,
                                   child: child!,
                                 );
@@ -153,7 +160,7 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                   right: 0,
                   child: AnimatedOpacity(
                     opacity: _opacity,
-                    duration: Duration(milliseconds: 200),
+                    duration: Duration(milliseconds: 100),
                     child: Center(
                       child: Column(
                         children: [
@@ -225,17 +232,18 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 5), // 5px padding
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed:
+                                      _animateImageAndText, // Trigger the same animation
                                   style: ElevatedButton.styleFrom(
-                                    primary: Color(0xFF2b512f),
+                                    backgroundColor: Color(0xFF2b512f),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(
-                                          2), // 2px rounded corner
+                                          4), // 2px rounded corner
                                     ),
                                     padding:
                                         EdgeInsets.all(3), // 3px padding inside
                                     minimumSize: Size(double.infinity,
-                                        60), // Increase button height to 60
+                                        80), // Increase button height to 60
                                   ),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -282,18 +290,89 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                   top: 10,
                   left: 10,
                   child: GestureDetector(
-                    onTap: () {},
-                    child: Icon(Icons.qr_code),
+                    onTap: _toggleBoxVisibility, // Toggle box visibility on tap
+                    child: Image.asset(
+                      'assets/barcode.jpg',
+                      width: 65, // Set the width of the image
+                      height: 65, // Set the height of the image
+                    ),
                   ),
                 ),
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: Icon(
-                      Icons.more_vert,
-                      size: 80.0,
+                Visibility(
+                  visible: _boxVisible, // Control visibility here
+                  child: Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      height: topHeight,
+                      padding: EdgeInsets.only(bottom: 5),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFfefefe),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/bigbarcode.jpg',
+                            width: double.infinity,
+                          ),
+                          Text(
+                            'UIT1932008',
+                            style: TextStyle(
+                              fontSize: 18,
+                            ),
+                          ),
+                          Text(
+                            'UiT Norges arktiske universitet',
+                            style: TextStyle(
+                              fontSize: 18,
+                            ),
+                          ),
+                          Expanded(
+                            // Ensure the button takes up the remaining space
+                            child: Align(
+                              alignment: Alignment.bottomCenter,
+                              child: ElevatedButton(
+                                onPressed:
+                                    _toggleBoxVisibility, // Close the box
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFFeab937),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(0),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Lukk',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Visibility(
+                  visible:
+                      !_boxVisible, // Hide the icon when the box is showing
+                  child: Positioned(
+                    top: 10,
+                    right: 10,
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: Icon(
+                        Icons.more_vert,
+                        size: 80.0,
+                      ),
                     ),
                   ),
                 ),
