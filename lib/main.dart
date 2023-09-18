@@ -16,10 +16,23 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
+  //App variables:
+  String name = "Kent Dreyer";
+  String birthday = "27.03.86";
+  String university = "UiT Norges Arktiske universitet";
+  String studentNumber = "451315";
+
+  String validFrom = "01.07.23";
+  String validTo = "31.01.24";
+  String semester = "Høst 2023";
+
+  //-------------------
+
   late final AnimationController _controller;
   late final Animation<double> _animation;
   double _opacity = 1.0;
   bool _boxVisible = false; // To control the visibility of the box
+  bool _panelVisible = false; // To control the visibility of the sliding panel
 
   @override
   void initState() {
@@ -64,6 +77,12 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
   void _toggleBoxVisibility() {
     setState(() {
       _boxVisible = !_boxVisible;
+    });
+  }
+
+  void _togglePanelVisibility() {
+    setState(() {
+      _panelVisible = !_panelVisible;
     });
   }
 
@@ -362,17 +381,89 @@ class _MyAppState extends State<MyApp> with TickerProviderStateMixin {
                   ),
                 ),
                 Visibility(
-                  visible:
-                      !_boxVisible, // Hide the icon when the box is showing
+                  visible: !_boxVisible &&
+                      !_panelVisible, // Hide the icon when the box or panel is showing
                   child: Positioned(
                     top: 10,
                     right: 10,
                     child: GestureDetector(
-                      onTap: () {},
+                      onTap:
+                          _togglePanelVisibility, // Toggle panel visibility on tap
                       child: Icon(
                         Icons.more_vert,
                         size: 80.0,
                       ),
+                    ),
+                  ),
+                ),
+                Visibility(
+                  visible:
+                      _panelVisible, // Control visibility of the panel here
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    height: _panelVisible
+                        ? MediaQuery.of(context).size.height / 2
+                        : 0,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text(
+                            'Alternativ',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            // Handle "Vilkår" button click
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.white,
+                            onPrimary: Colors.black,
+                          ),
+                          child: Text('Vilkår'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            // Handle "Personvern" button click
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.white,
+                            onPrimary: Colors.black,
+                          ),
+                          child: Text('Personvern'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            // Handle "Logg ut" button click
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.white,
+                            onPrimary: Colors.black,
+                          ),
+                          child: Text('Logg ut'),
+                        ),
+                        ElevatedButton(
+                          onPressed: _togglePanelVisibility, // Close the panel
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.white,
+                            onPrimary: Colors.black,
+                          ),
+                          child: Text('Lukk'),
+                        ),
+                      ],
                     ),
                   ),
                 ),
